@@ -105,5 +105,29 @@ def index():
     return resp
 
 
+from flask import Flask, request, make_response, send_file
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+
+
+@app.route("/records")
+def view_records():
+    user_id = request.args.get("id")
+    markdown_dir = BASE_DIR / "Markdown" / user_id
+
+    if not markdown_dir.exists():
+        return f"❌ 没有找到用户 ID 为 {user_id} 的 Markdown 文件。"
+
+    files = [f.name for f in markdown_dir.glob("*.md")]
+    file_list_html = "".join(f"<li>{f}</li>" for f in files)
+
+    return f"""
+    <h2>📑 用户 {user_id} 的 Markdown 文件</h2>
+    <ul>{file_list_html}</ul>
+    <p>（暂时仅展示文件名，下一步可支持点击下载）</p>
+    """
+
+
 if __name__ == "__main__":
-    app.run(debug=True, port=8082)
+    app.run(debug=True, port=8083)
