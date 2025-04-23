@@ -120,7 +120,10 @@ def view_records():
         return f"❌ 没有找到用户 ID 为 {user_id} 的 Markdown 文件。"
 
     files = [f.name for f in markdown_dir.glob("*.md")]
-    file_list_html = "".join(f"<li>{f}</li>" for f in files)
+    file_list_html = "".join(
+        f'<li>{f} - <a href="/download?uid={user_id}&file={f}">点击下载</a></li>'
+        for f in files
+    )
 
     return f"""
     <h2>📑 用户 {user_id} 的 Markdown 文件</h2>
@@ -129,5 +132,17 @@ def view_records():
     """
 
 
+@app.route("/download")
+def download_markdown():
+    user_id = request.args.get("uid")
+    filename = request.args.get("file")
+
+    file_path = BASE_DIR / "Markdown" / user_id / filename
+    if not file_path.exists():
+        return f"❌ 找不到文件：{filename}"
+
+    return send_file(file_path, as_attachment=True)
+
+
 if __name__ == "__main__":
-    app.run(debug=True, port=8083)
+    app.run(debug=True, port=8080)
