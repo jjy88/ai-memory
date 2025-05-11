@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Obsi喵 · 支付页面</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", sans-serif;
+            background-color: #fff8fc;
+            color: #333;
+            text-align: center;
+            padding: 2em;
+        }
+
+        .pay-box {
+            background-color: #fff0f6;
+            border-radius: 16px;
+            display: inline-block;
+            padding: 2em;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .qrcode {
+            width: 240px;
+            border: 4px dashed #ff99cc;
+            border-radius: 12px;
+            margin: 1em auto;
+        }
+
+        h2 {
+            color: #ff6699;
+            font-weight: 800;
+            margin-bottom: 0.5em;
+        }
+
+        .cat-footnote {
+            font-size: 0.9em;
+            color: #999;
+            margin-top: 1.5em;
+        }
+
+        .order-id {
+            font-family: monospace;
+            font-size: 0.95em;
+            color: #666;
+            margin-top: 0.5em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="pay-box">
+        <h2>喵～请扫码付款后开始生成笔记</h2>
+        <img class="qrcode" src="{{ qr_code_url }}" alt="支付二维码">
+        <p class="order-id">订单编号：<br>{{ order_id }}</p>
+        <div class="cat-footnote">请使用微信或支持扫码的工具进行支付<br>支付成功后将自动跳转至服务凭证</div>
+    </div>
+</body>
+
+</html>
