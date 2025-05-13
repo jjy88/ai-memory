@@ -1,139 +1,69 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>Obsi喵 - 本地知识助手</title>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Obsi喵 · 首页</title>
   <style>
     body {
-      font-family: "PingFang SC", "Helvetica Neue", sans-serif;
-      margin: 0;
-      padding: 2rem;
-      background-color: #f7f7f7;
+      background-color: #f7f9fb;
+      font-family: "Helvetica Neue", sans-serif;
+      text-align: center;
+      padding: 3em;
+      color: #333;
     }
 
-    h2 {
-      margin-bottom: 1rem;
+    h1 {
+      color: #5a6d7a;
+      font-size: 2.5em;
+      margin-bottom: 0.5em;
     }
 
-    #chat-box {
-      border: 1px solid #ccc;
-      padding: 1rem;
-      height: 60vh;
-      overflow-y: scroll;
-      background-color: #fff;
+    .logo {
+      width: 96px;
+      height: auto;
+      border-radius: 16px;
+      margin-bottom: 1em;
     }
 
-    .message {
-      margin: 1rem 0;
-      padding: 0.8rem;
-      border-radius: 6px;
-      max-width: 80%;
-      line-height: 1.6;
-      white-space: pre-wrap;
+    p {
+      font-size: 1.2em;
+      color: #666;
     }
 
-    .user {
-      background-color: #d9f7be;
-      align-self: flex-end;
-      text-align: right;
-      margin-left: auto;
+    .btn {
+      display: inline-block;
+      background-color: #6c9fcf;
+      color: white;
+      padding: 1em 2em;
+      margin: 1em;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 1em;
+      transition: background 0.3s ease;
     }
 
-    .assistant {
-      background-color: #e6f4ff;
-      align-self: flex-start;
-      text-align: left;
-      margin-right: auto;
+    .btn:hover {
+      background-color: #588ebd;
     }
 
-    #chat-input {
-      display: flex;
-      margin-top: 1rem;
-    }
-
-    #input {
-      flex-grow: 1;
-      padding: 0.5rem;
-      font-size: 1rem;
-    }
-
-    button {
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      margin-left: 0.5rem;
+    .footer {
+      margin-top: 3em;
+      font-size: 0.9em;
+      color: #aaa;
     }
   </style>
 </head>
 
 <body>
-  <h2>Obsi喵</h2>
-  <div id="chat-box"></div>
-
-  <div id="chat-input">
-    <textarea id="input" rows="2" placeholder="请输入问题..." style="width: 100%;"></textarea>
-    <button onclick="sendMessage()">发送</button>
+  <img class="logo" src="/static/images/obsi_logo.png" alt="Obsi Logo">
+  <h1>Obsi喵欢迎你 🐾</h1>
+  <p>你的 AI 猫猫助手正在等你上传资料，为你整理笔记。</p>
+  <a href="/pay" class="btn">💰 去付款页面</a>
+  <a href="/upload" class="btn">📤 上传资料</a>
+  <div class="footer">
+    Made with 🐱 by Obsi Team · <a href="/records">查看我的历史</a>
   </div>
-
-  <script>
-    async function sendMessage() {
-      const inputEl = document.getElementById("input");
-      const chatBox = document.getElementById("chat-box");
-      const input = inputEl.value.trim();
-      if (!input) return;
-
-      // 用户气泡
-      const userMsg = document.createElement("div");
-      userMsg.className = "message user";
-      userMsg.textContent = input;
-      chatBox.appendChild(userMsg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-
-      inputEl.value = "";
-
-      const res = await fetch("/chat", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({message: input})
-      });
-
-      const data = await res.json();
-      const botMsg = document.createElement("div");
-      botMsg.className = "message assistant";
-      chatBox.appendChild(botMsg);
-
-      // 打字机动画：一个字一个字显示
-      typeMarkdown(botMsg, data.reply, 100);
-
-      // 自动滚动到底部
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    // 渲染 Markdown + 打字效果
-    function typeMarkdown(el, mdText, delay = 80) {
-      const html = marked.parse(mdText);
-      let index = 0;
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = html;
-      const rawText = tempDiv.textContent || tempDiv.innerText || "";
-
-      const typing = setInterval(() => {
-        if (index < rawText.length) {
-          el.innerHTML = marked.parse(rawText.substring(0, index));
-          index++;
-
-          // 自动滚动到最新
-          el.scrollIntoView({behavior: "smooth", block: "end"});
-
-        } else {
-          clearInterval(typing);
-          el.innerHTML = html;
-          el.scrollIntoView({behavior: "smooth", block: "end"}); // 再滚一次确保收尾
-        }
-      }, delay);
-    } 
-  </script>
 </body>
 
 </html>
