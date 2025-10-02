@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AI Memory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .content-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .content-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        table thead {
+            background: #f8f9fa;
+        }
+        
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        table th {
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-free {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .badge-premium {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .badge-admin {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+        
+        .badge-active {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .badge-inactive {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .api-docs-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+        
+        .api-docs-link:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐾 AI Memory 管理面板</h1>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+        </div>
+        
+        <div id="error-message" class="error" style="display: none;"></div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>总用户数</h3>
+                <div class="number" id="total-users">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>活跃用户</h3>
+                <div class="number" id="active-users">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>总支付</h3>
+                <div class="number" id="total-payments">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>总上传</h3>
+                <div class="number" id="total-uploads">-</div>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>用户列表</h2>
+            <div id="users-table" class="loading">加载中...</div>
+        </div>
+        
+        <div class="content-section">
+            <h2>快速链接</h2>
+            <a href="/api/v1/docs" class="api-docs-link" target="_blank">📚 API 文档</a>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = '/api/v1';
+        let authToken = localStorage.getItem('auth_token');
+        
+        async function fetchWithAuth(url, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+                ...options.headers
+            };
+            
+            const response = await fetch(url, { ...options, headers });
+            
+            if (response.status === 401) {
+                showError('认证失败，请重新登录');
+                setTimeout(() => window.location.href = '/api/v1/docs', 2000);
+                throw new Error('Unauthorized');
+            }
+            
+            return response;
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        async function loadStats() {
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/admin/stats`);
+                const data = await response.json();
+                
+                document.getElementById('total-users').textContent = data.total_users;
+                document.getElementById('active-users').textContent = data.active_users;
+                document.getElementById('total-payments').textContent = data.total_payments;
+                document.getElementById('total-uploads').textContent = data.total_uploads;
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+        
+        async function loadUsers() {
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/admin/users`);
+                const users = await response.json();
+                
+                const tableHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>邮箱</th>
+                                <th>角色</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(user => `
+                                <tr>
+                                    <td>${user.email}</td>
+                                    <td><span class="badge badge-${user.role}">${user.role}</span></td>
+                                    <td><span class="badge badge-${user.is_active ? 'active' : 'inactive'}">${user.is_active ? '活跃' : '禁用'}</span></td>
+                                    <td>${new Date(user.created_at).toLocaleDateString('zh-CN')}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                
+                document.getElementById('users-table').innerHTML = tableHTML;
+            } catch (error) {
+                console.error('Failed to load users:', error);
+                document.getElementById('users-table').innerHTML = '<p>加载失败</p>';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('auth_token');
+            window.location.href = '/api/v1/docs';
+        }
+        
+        // Initialize
+        if (!authToken) {
+            showError('请先登录');
+            setTimeout(() => window.location.href = '/api/v1/docs', 2000);
+        } else {
+            loadStats();
+            loadUsers();
+        }
+    </script>
+</body>
+</html>

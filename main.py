@@ -67,11 +67,15 @@ app.register_blueprint(view_bp)
 
 @app.route("/")
 def index():
-    return """
-    <h2>欢迎来到 Obsi喵 🐾</h2>
-    <p>API文档: <a href='/api/v1/docs'>/api/v1/docs</a></p>
-    <p>传统接口: <a href='/pay'>/pay</a></p>
-    """
+    """Serve modern landing page"""
+    from flask import render_template
+    return render_template('home.html')
+
+@app.route("/admin")
+def admin_dashboard():
+    """Serve admin dashboard"""
+    from flask import render_template
+    return render_template('admin.html')
 
 @app.route("/health")
 def health():
