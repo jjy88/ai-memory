@@ -1,5 +1,43 @@
+# Python
 __pycache__/
+*.py[cod]
 *.pyc
 *.pyo
-.DS_Store
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment
 .env
+.env.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.github/
+
+# Documentation
+*.md
+docs/
+
+# Uploads
+uploads/
+static/generated/
+Markdown/
+Processed_Text/
